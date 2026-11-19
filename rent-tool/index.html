@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>692 Windy Hill Rent Range</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: summary strip on top, assumptions on the left, evidence on the right, sources and limits below. */
+:root {
+  --bg: #f4f5f2;
+  --panel: #ffffff;
+  --ink: #1b2420;
+  --muted: #5d6963;
+  --line: #d9ddd7;
+  --accent: #23664f;
+  --accent-soft: #e3efe9;
+  --warn: #9a5b00;
+  --warn-soft: #fbefd9;
+  --bad: #a33a2b;
+  --bad-soft: #f8e3df;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131815; --panel: #1b221e; --ink: #e5ebe7; --muted: #9aa8a0; --line: #2f3a34;
+    --accent: #6cc3a0; --accent-soft: #1f3a2f; --warn: #e0a54a; --warn-soft: #3a2e19;
+    --bad: #ec8b7c; --bad-soft: #3d2420; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131815; --panel: #1b221e; --ink: #e5ebe7; --muted: #9aa8a0; --line: #2f3a34;
+  --accent: #6cc3a0; --accent-soft: #1f3a2f; --warn: #e0a54a; --warn-soft: #3a2e19;
+  --bad: #ec8b7c; --bad-soft: #3d2420; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px 56px; display: grid; gap: 20px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 28px; font-weight: 800; }
+h2 { font-size: 18px; font-weight: 700; }
+h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+p { margin: 0; max-width: 68ch; }
+.muted { color: var(--muted); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+header { display: grid; gap: 6px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; }
+.summary { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 16px; }
+.big { font-family: var(--display); font-size: 40px; font-weight: 800; line-height: 1.05; }
+.big small { font-size: 18px; font-weight: 500; color: var(--muted); }
+.tile { display: grid; gap: 4px; align-content: start; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.pill.ok { background: var(--accent-soft); color: var(--accent); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.main { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+.controls { display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; font-size: 14px; }
+.field .hint { font-size: 12.5px; color: var(--muted); }
+.row2 { display: flex; gap: 10px; align-items: center; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+input[type="number"] { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: 14px var(--mono); }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { flex: 1; padding: 7px 8px; border: 0; background: var(--panel); color: var(--ink); font: 600 13px var(--body); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+.check { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+.check input { margin-top: 4px; accent-color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.results { display: grid; gap: 20px; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); font-weight: 600; white-space: nowrap; }
+td.r, th.r { text-align: right; }
+tr.off td { opacity: 0.45; }
+tr.hl td { background: var(--accent-soft); }
+tr.cur td { background: var(--warn-soft); }
+.chip { display: inline-block; font-size: 11.5px; padding: 1px 7px; border-radius: 4px; background: var(--warn-soft); color: var(--warn); margin: 2px 4px 0 0; white-space: nowrap; }
+.bar { position: relative; height: 34px; margin-top: 6px; }
+.bar .track { position: absolute; left: 0; right: 0; top: 15px; height: 4px; background: var(--line); border-radius: 2px; }
+.bar .band { position: absolute; top: 9px; height: 16px; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 4px; }
+.bar .mark { position: absolute; top: 4px; width: 2px; height: 26px; background: var(--accent); }
+.bar .mark.cur { background: var(--bad); }
+.bar .lbl { position: absolute; top: 34px; font: 11.5px var(--mono); color: var(--muted); transform: translateX(-50%); white-space: nowrap; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin-top: 22px; }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--accent); }
+.legend span.c::before { background: var(--bad); }
+.legend span.b::before { background: var(--accent-soft); border: 1px solid var(--accent); }
+ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 80ch; }
+footer { font-size: 12.5px; color: var(--muted); }
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .summary { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h3>Rent pricing for a small landlord</h3>
+  <h1>What should 692 Windy Hill Ln list for?</h1>
+  <p class="muted">3 bed, 2.5 bath, 2-story single-family home, built 1997, City of Columbus (Galloway mailing address), South-Western City Schools. Data collected Nov 18, 2026. Every rent is monthly. Change any assumption on the left and the numbers update.</p>
+</header>
+
+<section class="panel summary" aria-live="polite">
+  <div class="tile">
+    <h3>Recommended list rent</h3>
+    <div class="big num" id="recBase">—</div>
+    <div class="num muted" id="recRange">—</div>
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="legend"><span class="b">Recommended range</span><span>Midpoint</span><span class="c">Current ask $2,185</span></div>
+  </div>
+  <div class="tile">
+    <h3>Current ask: $2,185</h3>
+    <div><span class="pill" id="curPill">—</span></div>
+    <p id="curText" class="muted">—</p>
+  </div>
+  <div class="tile">
+    <h3>What this home has done</h3>
+    <p class="muted">Listed Sep 12, 2026 at $2,550. Cut five times, removed, relisted at $2,185. About <strong class="num">67 days</strong> on the market so far. In 2024 it took about 53 days and five cuts to reach $2,185.</p>
+  </div>
+</section>
+
+<div class="main">
+  <aside class="panel controls" aria-label="Assumptions">
+    <h2>Assumptions</h2>
+
+    <div class="field">
+      <label for="w">Weight on comps' current asking rents</label>
+      <input type="range" id="w" min="0" max="100" step="5" value="50">
+      <div class="row2 num"><span id="wAsk">50% asking</span><span class="muted">·</span><span id="wFin">50% last rented</span></div>
+      <div class="hint">Asking rents are current, but none of these homes has rented yet (26 to 74 days listed). Last-rented prices are what earlier tenants accepted, but they are 1 to 3 years old and only assumed to be rents.</div>
+    </div>
+
+    <div class="field">
+      <span id="sqftLabel" style="font-weight:600;font-size:14px">Square footage to use for this home</span>
+      <div class="seg" role="group" aria-labelledby="sqftLabel">
+        <button type="button" id="sqCounty" aria-pressed="true">County 1,292</button>
+        <button type="button" id="sqListing" aria-pressed="false">Listing 1,586</button>
+      </div>
+      <div class="hint">The county measures above-ground area only and records the half basement as unfinished. The listing likely counts the basement.</div>
+    </div>
+
+    <label class="check" for="selfInc"><input type="checkbox" id="selfInc" checked> <span>Count this home's own 2024 rent ($2,185) as evidence</span></label>
+
+    <h3>Adjustments to comps</h3>
+    <div class="grid2">
+      <div class="field"><label for="aSq">$ per sq ft</label><input type="number" id="aSq" value="0.50" step="0.05" min="0"></div>
+      <div class="field"><label for="aBath">$ per full bath</label><input type="number" id="aBath" value="100" step="10" min="0"></div>
+      <div class="field"><label for="aCond">Better condition</label><input type="number" id="aCond" value="75" step="5" min="0"></div>
+      <div class="field"><label for="aBsmt">Finished basement</label><input type="number" id="aBsmt" value="50" step="5" min="0"></div>
+      <div class="field"><label for="aFee">Fees in "total" prices</label><input type="number" id="aFee" value="15" step="5" min="0"></div>
+      <div class="field"><label for="aGrow">Rent growth / yr %</label><input type="number" id="aGrow" value="2" step="0.5"></div>
+    </div>
+    <div class="hint">A comp that is better than this home has its rent adjusted down, and one that is worse is adjusted up. A half bath counts as half the full-bath amount.</div>
+
+    <h3>Vacancy math</h3>
+    <div class="grid2">
+      <div class="field"><label for="lease">Lease length (months)</label><input type="number" id="lease" value="12" step="1" min="1"></div>
+      <div class="field"><label for="carry">Your costs while empty ($/mo)</label><input type="number" id="carry" value="150" step="10" min="0"></div>
+    </div>
+    <div class="hint">Costs while empty: utilities, lawn and snow care you pay when no tenant does. Property tax is about $257/mo either way, so it is left out.</div>
+  </aside>
+
+  <div class="results">
+    <section class="panel">
+      <h2>Comparable rentals, adjusted to this home</h2>
+      <p class="muted">Five 3-bedroom, 2-story homes built 1996 to 2000, all within the same county appraisal neighborhood (09601000) and school district. Untick a row to leave it out.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr>
+            <th>Use</th><th>Address</th><th class="r">Asking now</th><th class="r">Adjusted</th><th class="r">Last rented</th><th class="r">Adjusted</th><th>Size · baths · condition</th><th>Days listed</th>
+          </tr></thead>
+          <tbody id="compBody"></tbody>
+          <tfoot><tr>
+            <td></td><td><strong>Median</strong></td><td></td><td class="r num"><strong id="medAsk">—</strong></td><td></td><td class="r num"><strong id="medFin">—</strong></td><td colspan="2"></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Price higher and wait, or price lower and fill?</h2>
+      <p class="muted" id="vacIntro">—</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th class="r">List rent</th><th class="r">vs. midpoint</th><th class="r">Over the lease</th><th>Worth it only if…</th></tr></thead>
+          <tbody id="vacBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<section class="panel">
+  <h2>Where the sources disagreed, and what this tool uses</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Item</th><th>Franklin County Auditor</th><th>Zillow / Apartments.com</th><th>Used here, and why</th></tr></thead>
+      <tbody>
+        <tr><td>Living area, this home</td><td class="num">1,292 sq ft above grade (668 + 624, matches the sketch)</td><td class="num">1,586 sq ft</td><td>County. The 294 sq ft gap matches the half basement, which the county records as unfinished. Three of five comps list exactly the county figure. Toggle to see the effect.</td></tr>
+        <tr><td>Baths, this home</td><td>2 full, 1 half</td><td>"2.5" in the header, "3" in the facts section</td><td>2.5. Zillow counts the half bath as a full one in one place.</td></tr>
+        <tr><td>Baths, 5842 Rothrock Ct</td><td>2 full, 0 half (8 fixtures)</td><td>2.5</td><td>County. The fixture count supports it.</td></tr>
+        <tr><td>Baths and size, 5951 Ocala Ct</td><td class="num">2 full, 1 half; 1,520 sq ft</td><td class="num">1.5 baths; 1,754 sq ft</td><td>County. Listing errors run in both directions, so the county is the consistent source for physical facts.</td></tr>
+        <tr><td>Days on market</td><td>—</td><td>"6 days" (this home), "11 days" (810 Sumter)</td><td>Price history: about 67 and 60 days. Zillow's counter resets on relist.</td></tr>
+        <tr><td>Rent Zestimate</td><td>—</td><td class="num">$2,265 (range $2,152–$2,378)</td><td>Not used. It is built on 3 baths and 1,586 sq ft, and the market already turned down $2,250 for this home.</td></tr>
+        <tr><td>Price basis</td><td>—</td><td>3 comps show base rent, 2 show "total monthly price" with required fees</td><td>Fee estimate subtracted from the "total" prices (adjustable). The fee breakdown was not visible.</td></tr>
+        <tr><td>Condition, 810 Sumter St</td><td>Average, no remodel recorded</td><td>Kitchen island, stainless appliances, vinyl floors, smart home</td><td>Listing. The county record looks out of date, so it gets the "better condition" adjustment.</td></tr>
+        <tr><td>City</td><td>Columbus city limits</td><td>Galloway, OH</td><td>Columbus. Galloway is the postal name. This matters for the City of Columbus rental registry.</td></tr>
+        <tr><td>Sale history, this home</td><td>2003 sheriff's deed to HUD ($0); no 2004 sale</td><td>"Sold $84,000" and "$109,000" in 2003; "Sold $139,500" in 2004</td><td>Not resolved. Past sale prices do not affect rent.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Limits of this tool</h2>
+  <ul>
+    <li><strong>"Last rented" is an assumption.</strong> Zillow shows the price when a listing was removed. That usually means a lease was signed, but it could also mean the owner pulled the listing. No public source shows signed lease amounts.</li>
+    <li><strong>The comps are mostly priced by large companies</strong> (FirstKey Homes, Main Street Renewal, Progress Residential) that start high and cut on a schedule. Their asking rents describe their pricing method as much as tenant demand.</li>
+    <li><strong>Adjustment amounts are judgment, not measured.</strong> Five comps are too few to estimate what a bathroom or a square foot is worth here, so the defaults are round numbers you can change.</li>
+    <li><strong>Interior condition is unknown.</strong> Listing photos and a 2012 remodel note are all there is. A visit would settle the basement and condition questions.</li>
+    <li><strong>The vacancy table does not predict how long a price takes to rent.</strong> It tells you how much extra vacancy a higher price can absorb before it loses money. Whether the market gives you that time is the risk this home's own history shows.</li>
+    <li><strong>Not covered:</strong> concessions, pet rent ($30/mo here), application fees, lease-length incentives, and the cost of turnover itself.</li>
+  </ul>
+</section>
+
+<footer>Sources: Franklin County Auditor property records (parcels 570-238109, 570-235065, 570-233155, 570-235096, 570-245625, 570-238147) and Zillow rental listings and price histories, accessed Nov 18, 2026. Apartments.com listing for 692 Windy Hill Ln, accessed Nov 17, 2026.</footer>
+</div>
+
+<script id="model">
+// Pure model: data + compute(). No DOM access here.
+const AS_OF = "2026-11-18";
+const SUBJECT = { sqftCounty: 1292, sqftListing: 1586, baths: 2.5, better: false, finBsmt: 0, currentAsk: 2185,
+  ownFinal: { price: 2185, date: "2024-10-21" } };
+const COMPS = [
+  { id: "868", addr: "868 Windy Hill Ln", ask: 2090, basis: "base", sqft: 1464, baths: 2.5, better: true, betterWhy: "Good, remodeled 2012", finBsmt: 0,
+    fin: 1930, finDate: "2025-11-04", listed: "2026-10-01", firstAsk: 2480, mgr: "FirstKey Homes", chips: [] },
+  { id: "833", addr: "833 Rothrock Dr", ask: 2150, basis: "total", sqft: 1330, baths: 2.5, better: false, finBsmt: 400,
+    fin: 1845, finDate: "2023-06-06", listed: "2026-10-23", firstAsk: 2150, mgr: "Main Street Renewal", chips: ["price includes fees", "400 sq ft finished basement"] },
+  { id: "810", addr: "810 Sumter St", ask: 2310, basis: "total", sqft: 1350, baths: 2.5, better: true, betterWhy: "Updated (per listing)", finBsmt: 350,
+    fin: 2200, finDate: "2025-10-12", listed: "2026-09-19", firstAsk: 3080, mgr: "Progress Residential", chips: ["price includes fees", "Zillow says 11 days", "county says Average"] },
+  { id: "5842", addr: "5842 Rothrock Ct", ask: 1970, basis: "base", sqft: 1200, baths: 2.0, better: false, finBsmt: 0,
+    fin: 1925, finDate: "2024-10-05", listed: "2026-09-05", firstAsk: 2400, mgr: "FirstKey Homes", chips: ["listing says 2.5 baths"] },
+  { id: "5951", addr: "5951 Ocala Ct", ask: 2130, basis: "base", sqft: 1520, baths: 2.5, better: false, finBsmt: 0,
+    fin: 1980, finDate: "2025-10-11", listed: "2026-09-25", firstAsk: 2560, mgr: "FirstKey Homes", chips: ["listing says 1.5 baths, 1,754 sq ft"] }
+];
+
+function yearsBetween(a, b) { return (new Date(b) - new Date(a)) / (365.25 * 864e5); }
+function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 864e5); }
+function quantile(xs, q) {
+  const s = [...xs].sort((a, b) => a - b); if (!s.length) return NaN;
+  const pos = (s.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+  return s[lo] + (s[hi] - s[lo]) * (pos - lo);
+}
+const round5 = x => Math.round(x / 5) * 5;
+
+function compute(p) {
+  // p: { w, useListingSqft, selfInc, aSq, aBath, aCond, aBsmt, aFee, aGrow, lease, carry, include: {id:bool} }
+  const subjSqft = p.useListingSqft ? SUBJECT.sqftListing : SUBJECT.sqftCounty;
+  const rows = COMPS.map(c => {
+    const phys = (subjSqft - c.sqft) * p.aSq
+      + (SUBJECT.baths - c.baths) * p.aBath
+      - (c.better ? p.aCond : 0)
+      - (c.finBsmt > 0 ? p.aBsmt : 0);
+    const adjAsk = c.ask - (c.basis === "total" ? p.aFee : 0) + phys;
+    const yrs = yearsBetween(c.finDate, AS_OF);
+    const adjFin = c.fin * Math.pow(1 + p.aGrow / 100, yrs) + phys;
+    return { ...c, phys, adjAsk, adjFin, yrs, days: daysBetween(c.listed, AS_OF), on: p.include[c.id] !== false };
+  });
+  const used = rows.filter(r => r.on);
+  const asks = used.map(r => r.adjAsk);
+  const fins = used.map(r => r.adjFin);
+  let selfAdj = null;
+  if (p.selfInc) {
+    selfAdj = SUBJECT.ownFinal.price * Math.pow(1 + p.aGrow / 100, yearsBetween(SUBJECT.ownFinal.date, AS_OF));
+    fins.push(selfAdj);
+  }
+  const w = p.w / 100;
+  const blend = q => {
+    const a = quantile(asks, q), f = quantile(fins, q);
+    if (isNaN(a)) return f; if (isNaN(f)) return a;
+    return w * a + (1 - w) * f;
+  };
+  const low = round5(blend(0.25)), mid = round5(blend(0.5)), high = round5(blend(0.75));
+  // Vacancy trade-off relative to midpoint
+  const weekly = price => (price + p.carry) * 12 / 52;
+  const options = [];
+  const prices = new Set();
+  for (let d = -100; d <= 200; d += 50) prices.add(mid + d);
+  prices.add(SUBJECT.currentAsk);
+  [...prices].sort((a, b) => a - b).forEach(price => {
+    const diff = price - mid;
+    const overLease = diff * p.lease;
+    let weeks = 0, kind = "base";
+    if (diff > 0) { weeks = overLease / weekly(price); kind = "higher"; }
+    else if (diff < 0) { weeks = -overLease / weekly(mid); kind = "lower"; }
+    options.push({ price, diff, overLease, weeks, kind, isCurrent: price === SUBJECT.currentAsk, isMid: diff === 0 });
+  });
+  return { subjSqft, rows, selfAdj, medAsk: quantile(asks, 0.5), medFin: quantile(fins, 0.5), low, mid, high, options, nUsed: used.length };
+}
+if (typeof module !== "undefined") module.exports = { compute, COMPS, SUBJECT };
+</script>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = x => isNaN(x) ? "—" : "$" + Math.round(x).toLocaleString("en-US");
+const sgn = x => (x > 0 ? "+" : x < 0 ? "−" : "±") + "$" + Math.abs(Math.round(x)).toLocaleString("en-US");
+const state = { w: 50, useListingSqft: false, selfInc: true, include: {} };
+
+function params() {
+  const n = id => parseFloat($(id).value) || 0;
+  return { ...state, aSq: n("aSq"), aBath: n("aBath"), aCond: n("aCond"), aBsmt: n("aBsmt"), aFee: n("aFee"), aGrow: n("aGrow"),
+    lease: Math.max(1, n("lease")), carry: n("carry") };
+}
+
+function render() {
+  const r = compute(params());
+  $("wAsk").textContent = state.w + "% asking";
+  $("wFin").textContent = (100 - state.w) + "% last rented";
+  $("recBase").innerHTML = fmt(r.mid) + " <small>/mo</small>";
+  $("recRange").textContent = "Range " + fmt(r.low) + " – " + fmt(r.high) + " · " + r.nUsed + " comps" + (state.selfInc ? " + this home's 2024 rent" : "");
+
+  // range bar
+  const lo = Math.min(r.low, 2185) - 120, hi = Math.max(r.high, 2185) + 120;
+  const pct = x => ((x - lo) / (hi - lo) * 100).toFixed(2) + "%";
+  $("bar").innerHTML = '<div class="track"></div>' +
+    '<div class="band" style="left:' + pct(r.low) + ';width:calc(' + pct(r.high) + ' - ' + pct(r.low) + ')"></div>' +
+    '<div class="mark" style="left:' + pct(r.mid) + '"></div>' +
+    '<div class="mark cur" style="left:' + pct(2185) + '"></div>' +
+    '<div class="lbl" style="left:' + pct(r.low) + '">' + fmt(r.low) + '</div>' +
+    '<div class="lbl" style="left:' + pct(r.high) + '">' + fmt(r.high) + '</div>';
+
+  // current ask status
+  const cur = r.options.find(o => o.isCurrent);
+  const pill = $("curPill");
+  if (2185 > r.high) { pill.className = "pill bad"; pill.textContent = "Above the range"; }
+  else if (2185 >= r.low) { pill.className = "pill ok"; pill.textContent = "Within the range"; }
+  else { pill.className = "pill warn"; pill.textContent = "Below the range"; }
+  $("curText").innerHTML = cur.diff > 0
+    ? "That is <strong class='num'>" + sgn(cur.diff) + "/mo</strong> over the midpoint. Over a " + params().lease + "-month lease the extra is " + fmt(cur.overLease) + ", which " + cur.weeks.toFixed(1) + " extra weeks empty would wipe out. This home has already been empty about 9.5 weeks."
+    : "That is at or below the midpoint, so it should not need extra time to rent.";
+
+  // comps table
+  $("compBody").innerHTML = r.rows.map(c => {
+    const why = [c.sqft.toLocaleString() + " sq ft", c.baths + " ba", c.better ? c.betterWhy : "Average"].join(" · ");
+    const chips = c.chips.map(t => '<span class="chip">' + t + '</span>').join("");
+    return '<tr class="' + (c.on ? "" : "off") + '">' +
+      '<td><input type="checkbox" id="inc' + c.id + '" data-id="' + c.id + '" ' + (c.on ? "checked" : "") + ' aria-label="Use ' + c.addr + '"></td>' +
+      '<td><strong>' + c.addr + '</strong><br><span class="muted">' + c.mgr + '</span></td>' +
+      '<td class="r num">' + fmt(c.ask) + '<br><span class="muted">' + (c.basis === "total" ? "incl. fees" : "+ fees") + '</span></td>' +
+      '<td class="r num"><strong>' + fmt(c.adjAsk) + '</strong></td>' +
+      '<td class="r num">' + fmt(c.fin) + '<br><span class="muted">' + c.finDate.slice(0, 7) + '</span></td>' +
+      '<td class="r num"><strong>' + fmt(c.adjFin) + '</strong></td>' +
+      '<td>' + why + '<br>' + chips + '</td>' +
+      '<td class="num">' + c.days + ' days<br><span class="muted">from ' + fmt(c.firstAsk) + '</span></td></tr>';
+  }).join("") + (state.selfInc && r.selfAdj ? '<tr><td></td><td><strong>This home, 2024</strong><br><span class="muted">FirstKey Homes</span></td><td></td><td></td><td class="r num">$2,185<br><span class="muted">2024-10</span></td><td class="r num"><strong>' + fmt(r.selfAdj) + '</strong></td><td>Same house, growth adjustment only</td><td class="num">53 days<br><span class="muted">from $2,435</span></td></tr>' : "");
+  $("medAsk").textContent = fmt(r.medAsk);
+  $("medFin").textContent = fmt(r.medFin);
+  document.querySelectorAll("#compBody input[type=checkbox]").forEach(cb => cb.addEventListener("change", e => {
+    state.include[e.target.dataset.id] = e.target.checked; render();
+  }));
+
+  // vacancy table
+  const p = params();
+  $("vacIntro").textContent = "Compared with listing at the midpoint (" + fmt(r.mid) + "). Each empty week costs about " + fmt((r.mid + p.carry) * 12 / 52) + " in lost rent and your costs.";
+  $("vacBody").innerHTML = r.options.map(o => {
+    let txt;
+    if (o.kind === "higher") txt = "it rents within <strong>" + o.weeks.toFixed(1) + " weeks</strong> of when the midpoint would";
+    else if (o.kind === "lower") txt = "it rents at least <strong>" + o.weeks.toFixed(1) + " weeks</strong> sooner than the midpoint would";
+    else txt = "Starting point";
+    return '<tr class="' + (o.isCurrent ? "cur" : o.isMid ? "hl" : "") + '">' +
+      '<td class="r num"><strong>' + fmt(o.price) + '</strong>' + (o.isCurrent ? '<br><span class="muted">current ask</span>' : "") + '</td>' +
+      '<td class="r num">' + (o.isMid ? "—" : sgn(o.diff)) + '</td>' +
+      '<td class="r num">' + (o.isMid ? "—" : sgn(o.overLease)) + '</td>' +
+      '<td>' + txt + '</td></tr>';
+  }).join("");
+}
+
+$("w").addEventListener("input", e => { state.w = +e.target.value; render(); });
+$("selfInc").addEventListener("change", e => { state.selfInc = e.target.checked; render(); });
+$("sqCounty").addEventListener("click", () => { state.useListingSqft = false; $("sqCounty").setAttribute("aria-pressed", "true"); $("sqListing").setAttribute("aria-pressed", "false"); render(); });
+$("sqListing").addEventListener("click", () => { state.useListingSqft = true; $("sqListing").setAttribute("aria-pressed", "true"); $("sqCounty").setAttribute("aria-pressed", "false"); render(); });
+["aSq", "aBath", "aCond", "aBsmt", "aFee", "aGrow", "lease", "carry"].forEach(id => $(id).addEventListener("input", render));
+render();
+</script>
+</body>
+</html>
