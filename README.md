@@ -1,6 +1,8 @@
 # Rent pricing tool: 692 Windy Hill Ln, Columbus, OH
 
-A small tool that helps a small landlord decide **what monthly rent to list a single-family rental at**, using public data that does not fully agree.
+A small tool that helps a small landlord decide **what monthly rent to list a single-family rental at**, using public data that does not fully agree. 
+
+Link - https://swathi-6.github.io/RentalProperty/rent-tool/
 
 Subject: 692 Windy Hill Ln, Galloway (City of Columbus), OH 43119. 3 bed, 2.5 bath, 1997, 2-story. Listed for rent at $2,185 (Nov 2026).
 
