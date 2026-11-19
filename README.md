@@ -8,8 +8,6 @@ Subject: 692 Windy Hill Ln, Galloway (City of Columbus), OH 43119. 3 bed, 2.5 ba
 
 Open `index.html` in any browser. There is no build step and no backend. All data is in the file; all calculations run in the browser.
 
-To host it free on GitHub Pages: push this repo, then Settings → Pages → Deploy from branch → `main` / root. The page will be at `https://<user>.github.io/<repo>/`.
-
 ## What it does
 
 - Adjusts five comparable rentals to the subject (size, baths, condition, finished basement, fees included in price).
@@ -20,18 +18,6 @@ To host it free on GitHub Pages: push this repo, then Settings → Pages → Dep
 - Lists every source conflict and how it was handled, and the tool's limits.
 
 Default result: **$2,035/mo, range $1,960–$2,085**. The current $2,185 ask is above the range.
-
-## Repo layout
-
-| Path | Contents |
-|---|---|
-| `index.html` | The tool (HTML + CSS + JS, one file). The model is the `compute()` function in the `<script id="model">` block. |
-| `data/subject.json` | Subject property: county record (dwelling, sketch, transfers, taxes) and listing data |
-| `data/comps.csv` | Five comps with county and listing facts side by side |
-| `data/rent_history.csv` | Zillow rental price histories for the subject and comps |
-| `docs/FINDINGS.md` | Decisions, sources, conflicts and resolutions, findings, missing information |
-| `docs/AI_USAGE_LOG.md` | Record of AI use (draft for the author to complete) |
-| `docs/LIVE_APP_PLAN.md` | How this snapshot would become a working application with refreshing data |
 
 ## Data sources
 
